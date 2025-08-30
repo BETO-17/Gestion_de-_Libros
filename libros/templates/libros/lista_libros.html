@@ -1,0 +1,304 @@
+{% extends 'libros/base.html' %}
+
+{% block title %}Lista de Libros - Gestor de Libros{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-list me-2"></i>Lista de Libros
+                </h4>
+                <a href="{% url 'libros:crear' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Nuevo Libro
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros de búsqueda -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card search-box">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="search" class="form-label">Búsqueda</label>
+                        <input type="text" class="form-control" id="search" name="search" 
+                               value="{{ search_query }}" placeholder="Buscar por título, autor, ISBN...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="genero" class="form-label">Género</label>
+                        <select class="form-control" id="genero" name="genero">
+                            <option value="">Todos los géneros</option>
+                            {% for genero in generos %}
+                                <option value="{{ genero.0 }}" {% if genero.0 == genero_selected %}selected{% endif %}>
+                                    {{ genero.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" id="estado" name="estado">
+                            <option value="">Todos los estados</option>
+                            {% for estado in estados %}
+                                <option value="{{ estado.0 }}" {% if estado.0 == estado_selected %}selected{% endif %}>
+                                    {{ estado.1 }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-1"></i>Buscar
+                        </button>
+                    </div>
+                </form>
+                
+                {% if search_query or genero_selected or estado_selected %}
+                    <div class="mt-3">
+                        <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-times me-1"></i>Limpiar Filtros
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de libros -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                {% if libros %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Autor</th>
+                                    <th>ISBN</th>
+                                    <th>Género</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Ingreso</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for libro in libros %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ libro.titulo }}</strong>
+                                        {% if libro.editorial %}
+                                            <br><small class="text-muted">{{ libro.editorial }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ libro.autor }}</td>
+                                    <td>
+                                        <code>{{ libro.isbn }}</code>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ libro.get_genero_display }}</span>
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-select-sm estado-selector" 
+                                                data-libro-id="{{ libro.pk }}" 
+                                                data-current-estado="{{ libro.estado }}">
+                                            {% for estado in estados %}
+                                                <option value="{{ estado.0 }}" 
+                                                        {% if estado.0 == libro.estado %}selected{% endif %}>
+                                                    {{ estado.1 }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td>{{ libro.fecha_ingreso|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'libros:detalle' libro.pk %}" 
+                                               class="btn btn-sm btn-outline-primary" 
+                                               title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'libros:editar' libro.pk %}" 
+                                               class="btn btn-sm btn-outline-warning" 
+                                               title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'libros:eliminar' libro.pk %}" 
+                                               class="btn btn-sm btn-outline-danger" 
+                                               title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Paginación -->
+                    {% if is_paginated %}
+                        <nav aria-label="Paginación de libros" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if genero_selected %}&genero={{ genero_selected }}{% endif %}{% if estado_selected %}&estado={{ estado_selected }}{% endif %}">
+                                            <i class="fas fa-angle-double-left"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if genero_selected %}&genero={{ genero_selected }}{% endif %}{% if estado_selected %}&estado={{ estado_selected }}{% endif %}">
+                                            <i class="fas fa-angle-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                
+                                <li class="page-item active">
+                                    <span class="page-link">
+                                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                                    </span>
+                                </li>
+                                
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if genero_selected %}&genero={{ genero_selected }}{% endif %}{% if estado_selected %}&estado={{ estado_selected }}{% endif %}">
+                                            <i class="fas fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if genero_selected %}&genero={{ genero_selected }}{% endif %}{% if estado_selected %}&estado={{ estado_selected }}{% endif %}">
+                                            <i class="fas fa-angle-double-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Mostrando {{ page_obj.start_index }} a {{ page_obj.end_index }} 
+                            de {{ page_obj.paginator.count }} libros
+                        </small>
+                    </div>
+                    
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No se encontraron libros</h5>
+                        <p class="text-muted">
+                            {% if search_query or genero_selected or estado_selected %}
+                                No hay libros que coincidan con los criterios de búsqueda.
+                            {% else %}
+                                No hay libros registrados en el sistema.
+                            {% endif %}
+                        </p>
+                        {% if search_query or genero_selected or estado_selected %}
+                            <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-times me-1"></i>Limpiar Filtros
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'libros:crear' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Agregar Primer Libro
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cambiar estado del libro
+    const estadoSelectors = document.querySelectorAll('.estado-selector');
+    
+    estadoSelectors.forEach(selector => {
+        selector.addEventListener('change', function() {
+            const libroId = this.dataset.libroId;
+            const nuevoEstado = this.value;
+            const currentEstado = this.dataset.currentEstado;
+            
+            if (nuevoEstado === currentEstado) return;
+            
+            // Confirmar cambio
+            if (confirm('¿Estás seguro de que quieres cambiar el estado del libro?')) {
+                cambiarEstadoLibro(libroId, nuevoEstado, this);
+            } else {
+                // Revertir selección
+                this.value = currentEstado;
+            }
+        });
+    });
+    
+    function cambiarEstadoLibro(libroId, nuevoEstado, selector) {
+        fetch(`/api/libros/${libroId}/cambiar-estado/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `estado=${nuevoEstado}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                selector.dataset.currentEstado = nuevoEstado;
+                mostrarMensaje('Estado cambiado exitosamente', 'success');
+            } else {
+                mostrarMensaje(data.message || 'Error al cambiar el estado', 'danger');
+                selector.value = selector.dataset.currentEstado;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarMensaje('Error al cambiar el estado', 'danger');
+            selector.value = selector.dataset.currentEstado;
+        });
+    }
+    
+    function mostrarMensaje(mensaje, tipo) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-info-circle me-2"></i>${mensaje}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('main .container');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-remover después de 5 segundos
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %}

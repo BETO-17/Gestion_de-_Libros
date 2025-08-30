@@ -1,0 +1,294 @@
+{% extends 'libros/base.html' %}
+
+{% block title %}{{ libro.titulo }} - Gestor de Libros{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-book me-2"></i>Detalles del Libro
+                </h4>
+                <div>
+                    <a href="{% url 'libros:editar' libro.pk %}" class="btn btn-warning me-2">
+                        <i class="fas fa-edit me-2"></i>Editar
+                    </a>
+                    <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a la Lista
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Información principal del libro -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Información General
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Título</h6>
+                        <p class="h5">{{ libro.titulo }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Autor</h6>
+                        <p class="h5">{{ libro.autor }}</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">ISBN</h6>
+                        <p><code class="fs-5">{{ libro.isbn }}</code></p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Género</h6>
+                        <span class="badge bg-info fs-6">{{ libro.get_genero_display }}</span>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Editorial</h6>
+                        <p>{{ libro.editorial|default:"No especificada" }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Año de Publicación</h6>
+                        <p class="fs-5">{{ libro.año_publicacion }}</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Número de Páginas</h6>
+                        <p>{{ libro.paginas|default:"No especificado" }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Estado</h6>
+                        <span class="badge bg-{% if libro.estado == 'disponible' %}success{% elif libro.estado == 'prestado' %}warning{% elif libro.estado == 'reservado' %}info{% else %}danger{% endif %} fs-6">
+                            {{ libro.get_estado_display }}
+                        </span>
+                    </div>
+                </div>
+                
+                {% if libro.descripcion %}
+                <div class="mb-3">
+                    <h6 class="text-primary">Descripción</h6>
+                    <p class="text-muted">{{ libro.descripcion }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Información del sistema -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>Información del Sistema
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Fecha de Ingreso:</strong> {{ libro.fecha_ingreso|date:"d/m/Y" }}</p>
+                        <p><strong>Última Modificación:</strong> {{ libro.fecha_modificacion|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>ID del Libro:</strong> <code>{{ libro.pk }}</code></p>
+                        <p><strong>Disponible para préstamo:</strong> 
+                            {% if libro.esta_disponible %}
+                                <span class="badge bg-success">Sí</span>
+                            {% else %}
+                                <span class="badge bg-danger">No</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Panel lateral con acciones y estadísticas -->
+    <div class="col-md-4">
+        <!-- Acciones rápidas -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'libros:editar' libro.pk %}" class="btn btn-warning">
+                        <i class="fas fa-edit me-2"></i>Editar Libro
+                    </a>
+                    <a href="{% url 'libros:eliminar' libro.pk %}" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Eliminar Libro
+                    </a>
+                    <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>Ver Todos los Libros
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cambiar estado -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-exchange-alt me-2"></i>Cambiar Estado
+                </h6>
+            </div>
+            <div class="card-body">
+                <select class="form-select mb-3" id="estado-selector" data-libro-id="{{ libro.pk }}">
+                    {% for estado in libro.ESTADO_CHOICES %}
+                        <option value="{{ estado.0 }}" {% if estado.0 == libro.estado %}selected{% endif %}>
+                            {{ estado.1 }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-primary w-100" onclick="cambiarEstado()">
+                    <i class="fas fa-save me-2"></i>Actualizar Estado
+                </button>
+            </div>
+        </div>
+        
+        <!-- Información adicional -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Estadísticas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-book fa-2x text-primary"></i>
+                        <p class="mb-0 mt-2"><strong>Libro #{{ libro.pk }}</strong></p>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h6 class="text-muted">Género</h6>
+                                <p class="mb-0">{{ libro.get_genero_display }}</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h6 class="text-muted">Estado</h6>
+                            <p class="mb-0">{{ libro.get_estado_display }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navegación entre libros -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-compass me-2"></i>Navegación
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a la Lista
+                    </a>
+                    <div>
+                        <a href="{% url 'libros:crear' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-plus me-2"></i>Nuevo Libro
+                        </a>
+                        <a href="{% url 'libros:editar' libro.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Editar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function cambiarEstado() {
+    const selector = document.getElementById('estado-selector');
+    const libroId = selector.dataset.libroId;
+    const nuevoEstado = selector.value;
+    
+    if (confirm('¿Estás seguro de que quieres cambiar el estado del libro?')) {
+        fetch(`/api/libros/${libroId}/cambiar-estado/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `estado=${nuevoEstado}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarMensaje('Estado cambiado exitosamente', 'success');
+                // Recargar la página para mostrar el nuevo estado
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                mostrarMensaje(data.message || 'Error al cambiar el estado', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarMensaje('Error al cambiar el estado', 'danger');
+        });
+    }
+}
+
+function mostrarMensaje(mensaje, tipo) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        <i class="fas fa-info-circle me-2"></i>${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('main .container');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto-remover después de 5 segundos
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}
