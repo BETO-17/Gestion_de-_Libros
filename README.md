@@ -9,12 +9,6 @@ Sistema simple para gestionar una biblioteca personal desarrollado con Django.
 -  **Responsive**: Funciona en móvil y computadora
 -  **Interfaz moderna**: Diseño limpio con Bootstrap
 
-## Uso
-
-- **Inicio** (`/`): Página principal
-- **Libros** (`/libros/`): Ver todos los libros
-- **Crear** (`/libros/crear/`): Agregar nuevo libro
-- **Admin** (`/admin/`): Panel de administración
 
 ##  Tecnologías
 
@@ -23,15 +17,18 @@ Sistema simple para gestionar una biblioteca personal desarrollado con Django.
 - **Frontend**: Bootstrap 5, HTML5, CSS3
 - **Python**: 3.12+
 
-## Estructura
+## Integrantes
+1  Scrum Master
+- Alberto Huaman 4
 
-```
-Gestor_libros/
-├── Gestor_libros/     # Configuración Django
-├── libros/            # Aplicación principal
-├── templates/         # Plantillas HTML
-└── manage.py         # Comandos Django
-```
+2  Product Owner
+- Arturo Milla 4
+
+3  Desarrolladores (Developer)
+- Jorst Huillca 5
+- Diego Huanri 4
+- Carlos  Lara 5
+
 
 ## Comandos Útiles
 
@@ -40,11 +37,3 @@ python manage.py runserver    # Ejecutar servidor
 python manage.py createsuperuser  # Crear admin
 python manage.py check        # Verificar proyecto
 ```
-
-**Desarrollado con Django y Python**
-**REQUERIMENTOS
-Django==4.2.7
-PyMySQL==1.1.2
-sqlparse==0.5.3
-asgiref==3.9.1
-tzdata==2025.2
