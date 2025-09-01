@@ -11,17 +11,16 @@ class LibroAdmin(admin.ModelAdmin):
     """Configuración del admin para el modelo Libro"""
     
     list_display = [
-        'titulo', 'autor', 'isbn', 'genero', 'estado', 
-        'año_publicacion', 'editorial', 'fecha_ingreso', 'acciones'
+        'titulo', 'autor', 'genero', 'año_publicacion', 
+        'fecha_ingreso', 'acciones'
     ]
     
     list_filter = [
-        'genero', 'estado', 'año_publicacion', 'fecha_ingreso', 
-        'editorial'
+        'genero', 'año_publicacion', 'fecha_ingreso'
     ]
     
     search_fields = [
-        'titulo', 'autor', 'isbn', 'editorial', 'descripcion'
+        'titulo', 'autor'
     ]
     
     list_per_page = 25
@@ -33,26 +32,15 @@ class LibroAdmin(admin.ModelAdmin):
     
     fieldsets = [
         ('Información Básica', {
-            'fields': ['titulo', 'autor', 'isbn', 'genero']
+            'fields': ['titulo', 'autor', 'genero']
         }),
         ('Detalles de Publicación', {
-            'fields': ['editorial', 'año_publicacion', 'paginas']
+            'fields': ['año_publicacion']
         }),
-        ('Contenido', {
-            'fields': ['descripcion'],
+        ('Información del Sistema', {
+            'fields': ['fecha_ingreso', 'fecha_modificacion'],
             'classes': ['collapse']
         }),
-        ('Estado del Sistema', {
-            'fields': ['estado', 'fecha_ingreso', 'fecha_modificacion'],
-            'classes': ['collapse']
-        }),
-    ]
-    
-    actions = [
-        'marcar_como_disponible',
-        'marcar_como_prestado',
-        'marcar_como_reservado',
-        'marcar_como_perdido'
     ]
     
     def acciones(self, obj):
@@ -81,43 +69,6 @@ class LibroAdmin(admin.ModelAdmin):
             obj.fecha_ingreso = obj.fecha_ingreso or timezone.now().date()
         super().save_model(request, obj, form, change)
     
-    # Acciones personalizadas
-    def marcar_como_disponible(self, request, queryset):
-        """Marca los libros seleccionados como disponibles"""
-        updated = queryset.update(estado='disponible')
-        self.message_user(
-            request, 
-            f'{updated} libro(s) marcado(s) como disponible(s).'
-        )
-    marcar_como_disponible.short_description = "Marcar como disponible"
-    
-    def marcar_como_prestado(self, request, queryset):
-        """Marca los libros seleccionados como prestados"""
-        updated = queryset.update(estado='prestado')
-        self.message_user(
-            request, 
-            f'{updated} libro(s) marcado(s) como prestado(s).'
-        )
-    marcar_como_prestado.short_description = "Marcar como prestado"
-    
-    def marcar_como_reservado(self, request, queryset):
-        """Marca los libros seleccionados como reservados"""
-        updated = queryset.update(estado='reservado')
-        self.message_user(
-            request, 
-            f'{updated} libro(s) marcado(s) como reservado(s).'
-        )
-    marcar_como_reservado.short_description = "Marcar como reservado"
-    
-    def marcar_como_perdido(self, request, queryset):
-        """Marca los libros seleccionados como perdidos"""
-        updated = queryset.update(estado='perdido')
-        self.message_user(
-            request, 
-            f'{updated} libro(s) marcado(s) como perdido(s).'
-        )
-    marcar_como_perdido.short_description = "Marcar como perdido"
-    
     # Personalización de la interfaz
     def get_list_display(self, request):
         """Personaliza la lista según el usuario"""
@@ -126,8 +77,7 @@ class LibroAdmin(admin.ModelAdmin):
         else:
             # Para usuarios no superusuarios, ocultar algunos campos
             return [
-                'titulo', 'autor', 'isbn', 'genero', 'estado', 
-                'año_publicacion', 'fecha_ingreso'
+                'titulo', 'autor', 'genero', 'año_publicacion', 'fecha_ingreso'
             ]
     
     def has_delete_permission(self, request, obj=None):

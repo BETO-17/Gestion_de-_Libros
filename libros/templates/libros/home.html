@@ -17,39 +17,6 @@
     </div>
 </div>
 
-<!-- Estadísticas -->
-<div class="row mb-4">
-    <div class="col-md-4 mb-3">
-        <div class="card stats-card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-books fa-3x text-primary mb-3"></i>
-                <h3 class="card-title text-primary">{{ total_libros }}</h3>
-                <p class="card-text">Total de Libros</p>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4 mb-3">
-        <div class="card stats-card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                <h3 class="card-title text-success">{{ libros_disponibles }}</h3>
-                <p class="card-text">Libros Disponibles</p>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4 mb-3">
-        <div class="card stats-card h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-handshake fa-3x text-warning mb-3"></i>
-                <h3 class="card-title text-warning">{{ libros_prestados }}</h3>
-                <p class="card-text">Libros Prestados</p>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Acciones rápidas -->
 <div class="row mb-4">
     <div class="col-12">
@@ -95,7 +62,6 @@
                                     <th>Título</th>
                                     <th>Autor</th>
                                     <th>Género</th>
-                                    <th>Estado</th>
                                     <th>Fecha de Ingreso</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -105,24 +71,10 @@
                                 <tr>
                                     <td>
                                         <strong>{{ libro.titulo }}</strong>
-                                        {% if libro.isbn %}
-                                            <br><small class="text-muted">ISBN: {{ libro.isbn }}</small>
-                                        {% endif %}
                                     </td>
                                     <td>{{ libro.autor }}</td>
                                     <td>
                                         <span class="badge bg-info">{{ libro.get_genero_display }}</span>
-                                    </td>
-                                    <td>
-                                        {% if libro.estado == 'disponible' %}
-                                            <span class="badge bg-success">{{ libro.get_estado_display }}</span>
-                                        {% elif libro.estado == 'prestado' %}
-                                            <span class="badge bg-warning">{{ libro.get_estado_display }}</span>
-                                        {% elif libro.estado == 'reservado' %}
-                                            <span class="badge bg-info">{{ libro.get_estado_display }}</span>
-                                        {% else %}
-                                            <span class="badge bg-danger">{{ libro.get_estado_display }}</span>
-                                        {% endif %}
                                     </td>
                                     <td>{{ libro.fecha_ingreso|date:"d/m/Y" }}</td>
                                     <td>

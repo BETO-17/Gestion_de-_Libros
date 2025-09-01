@@ -68,24 +68,7 @@
                     </div>
                     
                     <div class="row">
-                        <!-- ISBN y Género -->
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.isbn.id_for_label }}" class="form-label">
-                                {{ form.isbn.label }} <span class="text-danger">*</span>
-                            </label>
-                            {{ form.isbn }}
-                            {% if form.isbn.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.isbn.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                            {% if form.isbn.help_text %}
-                                <div class="form-text">{{ form.isbn.help_text }}</div>
-                            {% endif %}
-                        </div>
-                        
+                        <!-- Género y Año de Publicación -->
                         <div class="col-md-6 mb-3">
                             <label for="{{ form.genero.id_for_label }}" class="form-label">
                                 {{ form.genero.label }} <span class="text-danger">*</span>
@@ -94,23 +77,6 @@
                             {% if form.genero.errors %}
                                 <div class="invalid-feedback d-block">
                                     {% for error in form.genero.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <!-- Editorial y Año de Publicación -->
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.editorial.id_for_label }}" class="form-label">
-                                {{ form.editorial.label }}
-                            </label>
-                            {{ form.editorial }}
-                            {% if form.editorial.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.editorial.errors %}
                                         <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
                                     {% endfor %}
                                 </div>
@@ -133,55 +99,6 @@
                                 <div class="form-text">{{ form.año_publicacion.help_text }}</div>
                             {% endif %}
                         </div>
-                    </div>
-                    
-                    <div class="row">
-                        <!-- Páginas y Estado -->
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.paginas.id_for_label }}" class="form-label">
-                                {{ form.paginas.label }}
-                            </label>
-                            {{ form.paginas }}
-                            {% if form.paginas.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.paginas.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ form.estado.id_for_label }}" class="form-label">
-                                {{ form.estado.label }} <span class="text-danger">*</span>
-                            </label>
-                            {{ form.estado }}
-                            {% if form.estado.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {% for error in form.estado.errors %}
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Descripción -->
-                    <div class="mb-4">
-                        <label for="{{ form.descripcion.id_for_label }}" class="form-label">
-                            {{ form.descripcion.label }}
-                        </label>
-                        {{ form.descripcion }}
-                        {% if form.descripcion.errors %}
-                            <div class="invalid-feedback d-block">
-                                {% for error in form.descripcion.errors %}
-                                    <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        {% if form.descripcion.help_text %}
-                            <div class="form-text">{{ form.descripcion.help_text }}</div>
-                        {% endif %}
                     </div>
                     
                     <!-- Botones de acción -->
@@ -215,14 +132,10 @@
                         <p><strong>Última Modificación:</strong> {{ object.fecha_modificacion|date:"d/m/Y H:i" }}</p>
                     </div>
                     <div class="col-md-6">
-                        <p><strong>Estado Actual:</strong> 
-                            <span class="badge bg-{% if object.estado == 'disponible' %}success{% elif object.estado == 'prestado' %}warning{% elif object.estado == 'reservado' %}info{% else %}danger{% endif %}">
-                                {{ object.get_estado_display }}
-                            </span>
-                        </p>
                         <p><strong>Género:</strong> 
                             <span class="badge bg-info">{{ object.get_genero_display }}</span>
                         </p>
+                        <p><strong>ID del Libro:</strong> <code>{{ object.pk }}</code></p>
                     </div>
                 </div>
             </div>
@@ -234,18 +147,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Validación del ISBN en tiempo real
-    const isbnInput = document.getElementById('{{ form.isbn.id_for_label }}');
-    if (isbnInput) {
-        isbnInput.addEventListener('input', function() {
-            let value = this.value.replace(/[^0-9]/g, '');
-            if (value.length > 13) {
-                value = value.substring(0, 13);
-            }
-            this.value = value;
-        });
-    }
-    
     // Validación del año de publicación
     const añoInput = document.getElementById('{{ form.año_publicacion.id_for_label }}');
     if (añoInput) {
@@ -255,19 +156,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.setCustomValidity('El año debe ser mayor a 999');
             } else if (value > 2024) {
                 this.setCustomValidity('El año no puede ser mayor a 2024');
-            } else {
-                this.setCustomValidity('');
-            }
-        });
-    }
-    
-    // Validación del número de páginas
-    const paginasInput = document.getElementById('{{ form.paginas.id_for_label }}');
-    if (paginasInput) {
-        paginasInput.addEventListener('input', function() {
-            let value = parseInt(this.value);
-            if (value <= 0) {
-                this.setCustomValidity('El número de páginas debe ser mayor a 0');
             } else {
                 this.setCustomValidity('');
             }

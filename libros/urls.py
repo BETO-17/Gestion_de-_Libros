@@ -13,7 +13,4 @@ urlpatterns = [
     path('libros/<int:pk>/', views.LibroDetailView.as_view(), name='detalle'),
     path('libros/<int:pk>/editar/', views.LibroUpdateView.as_view(), name='editar'),
     path('libros/<int:pk>/eliminar/', views.LibroDeleteView.as_view(), name='eliminar'),
-    
-    # API endpoints
-    path('api/libros/<int:pk>/cambiar-estado/', views.cambiar_estado_libro, name='cambiar_estado'),
 ]

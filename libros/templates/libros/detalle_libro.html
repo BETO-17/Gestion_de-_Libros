@@ -46,45 +46,14 @@
                 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <h6 class="text-primary">ISBN</h6>
-                        <p><code class="fs-5">{{ libro.isbn }}</code></p>
-                    </div>
-                    <div class="col-md-6 mb-3">
                         <h6 class="text-primary">Género</h6>
                         <span class="badge bg-info fs-6">{{ libro.get_genero_display }}</span>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <h6 class="text-primary">Editorial</h6>
-                        <p>{{ libro.editorial|default:"No especificada" }}</p>
                     </div>
                     <div class="col-md-6 mb-3">
                         <h6 class="text-primary">Año de Publicación</h6>
                         <p class="fs-5">{{ libro.año_publicacion }}</p>
                     </div>
                 </div>
-                
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <h6 class="text-primary">Número de Páginas</h6>
-                        <p>{{ libro.paginas|default:"No especificado" }}</p>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <h6 class="text-primary">Estado</h6>
-                        <span class="badge bg-{% if libro.estado == 'disponible' %}success{% elif libro.estado == 'prestado' %}warning{% elif libro.estado == 'reservado' %}info{% else %}danger{% endif %} fs-6">
-                            {{ libro.get_estado_display }}
-                        </span>
-                    </div>
-                </div>
-                
-                {% if libro.descripcion %}
-                <div class="mb-3">
-                    <h6 class="text-primary">Descripción</h6>
-                    <p class="text-muted">{{ libro.descripcion }}</p>
-                </div>
-                {% endif %}
             </div>
         </div>
         
@@ -103,20 +72,13 @@
                     </div>
                     <div class="col-md-6">
                         <p><strong>ID del Libro:</strong> <code>{{ libro.pk }}</code></p>
-                        <p><strong>Disponible para préstamo:</strong> 
-                            {% if libro.esta_disponible %}
-                                <span class="badge bg-success">Sí</span>
-                            {% else %}
-                                <span class="badge bg-danger">No</span>
-                            {% endif %}
-                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Panel lateral con acciones y estadísticas -->
+    <!-- Panel lateral con acciones -->
     <div class="col-md-4">
         <!-- Acciones rápidas -->
         <div class="card mb-4">
@@ -140,32 +102,11 @@
             </div>
         </div>
         
-        <!-- Cambiar estado -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h6 class="mb-0">
-                    <i class="fas fa-exchange-alt me-2"></i>Cambiar Estado
-                </h6>
-            </div>
-            <div class="card-body">
-                <select class="form-select mb-3" id="estado-selector" data-libro-id="{{ libro.pk }}">
-                    {% for estado in libro.ESTADO_CHOICES %}
-                        <option value="{{ estado.0 }}" {% if estado.0 == libro.estado %}selected{% endif %}>
-                            {{ estado.1 }}
-                        </option>
-                    {% endfor %}
-                </select>
-                <button class="btn btn-primary w-100" onclick="cambiarEstado()">
-                    <i class="fas fa-save me-2"></i>Actualizar Estado
-                </button>
-            </div>
-        </div>
-        
         <!-- Información adicional -->
         <div class="card">
             <div class="card-header">
                 <h6 class="mb-0">
-                    <i class="fas fa-chart-bar me-2"></i>Estadísticas
+                    <i class="fas fa-info-circle me-2"></i>Información del Libro
                 </h6>
             </div>
             <div class="card-body">
@@ -176,15 +117,9 @@
                     </div>
                     
                     <div class="row text-center">
-                        <div class="col-6">
-                            <div class="border-end">
-                                <h6 class="text-muted">Género</h6>
-                                <p class="mb-0">{{ libro.get_genero_display }}</p>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <h6 class="text-muted">Estado</h6>
-                            <p class="mb-0">{{ libro.get_estado_display }}</p>
+                        <div class="col-12">
+                            <h6 class="text-muted">Género</h6>
+                            <p class="mb-0">{{ libro.get_genero_display }}</p>
                         </div>
                     </div>
                 </div>
@@ -220,75 +155,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-function cambiarEstado() {
-    const selector = document.getElementById('estado-selector');
-    const libroId = selector.dataset.libroId;
-    const nuevoEstado = selector.value;
-    
-    if (confirm('¿Estás seguro de que quieres cambiar el estado del libro?')) {
-        fetch(`/api/libros/${libroId}/cambiar-estado/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: `estado=${nuevoEstado}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                mostrarMensaje('Estado cambiado exitosamente', 'success');
-                // Recargar la página para mostrar el nuevo estado
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
-            } else {
-                mostrarMensaje(data.message || 'Error al cambiar el estado', 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mostrarMensaje('Error al cambiar el estado', 'danger');
-        });
-    }
-}
-
-function mostrarMensaje(mensaje, tipo) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
-    alertDiv.innerHTML = `
-        <i class="fas fa-info-circle me-2"></i>${mensaje}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    const container = document.querySelector('main .container');
-    container.insertBefore(alertDiv, container.firstChild);
-    
-    // Auto-remover después de 5 segundos
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 5000);
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-</script>
 {% endblock %}
