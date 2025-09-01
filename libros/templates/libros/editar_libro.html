@@ -1,0 +1,166 @@
+{% extends 'libros/base.html' %}
+
+{% block title %}Editar Libro - Gestor de Libros{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-edit me-2"></i>Editar Libro: {{ object.titulo }}
+                </h4>
+                <div>
+                    <a href="{% url 'libros:detalle' object.pk %}" class="btn btn-outline-info me-2">
+                        <i class="fas fa-eye me-2"></i>Ver Detalles
+                    </a>
+                    <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a la Lista
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <!-- Título y Autor -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.titulo.id_for_label }}" class="form-label">
+                                {{ form.titulo.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.titulo }}
+                            {% if form.titulo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.titulo.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if form.titulo.help_text %}
+                                <div class="form-text">{{ form.titulo.help_text }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.autor.id_for_label }}" class="form-label">
+                                {{ form.autor.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.autor }}
+                            {% if form.autor.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.autor.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if form.autor.help_text %}
+                                <div class="form-text">{{ form.autor.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Género y Año de Publicación -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.genero.id_for_label }}" class="form-label">
+                                {{ form.genero.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.genero }}
+                            {% if form.genero.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.genero.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.año_publicacion.id_for_label }}" class="form-label">
+                                {{ form.año_publicacion.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.año_publicacion }}
+                            {% if form.año_publicacion.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.año_publicacion.errors %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if form.año_publicacion.help_text %}
+                                <div class="form-text">{{ form.año_publicacion.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'libros:detalle' object.pk %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Actualizar Libro
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información del libro -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Información del Libro
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Fecha de Ingreso:</strong> {{ object.fecha_ingreso|date:"d/m/Y" }}</p>
+                        <p><strong>Última Modificación:</strong> {{ object.fecha_modificacion|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Género:</strong> 
+                            <span class="badge bg-info">{{ object.get_genero_display }}</span>
+                        </p>
+                        <p><strong>ID del Libro:</strong> <code>{{ object.pk }}</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación del año de publicación
+    const añoInput = document.getElementById('{{ form.año_publicacion.id_for_label }}');
+    if (añoInput) {
+        añoInput.addEventListener('input', function() {
+            let value = parseInt(this.value);
+            if (value < 1000) {
+                this.setCustomValidity('El año debe ser mayor a 999');
+            } else if (value > 2024) {
+                this.setCustomValidity('El año no puede ser mayor a 2024');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

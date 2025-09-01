@@ -1,0 +1,158 @@
+{% extends 'libros/base.html' %}
+
+{% block title %}{{ libro.titulo }} - Gestor de Libros{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-book me-2"></i>Detalles del Libro
+                </h4>
+                <div>
+                    <a href="{% url 'libros:editar' libro.pk %}" class="btn btn-warning me-2">
+                        <i class="fas fa-edit me-2"></i>Editar
+                    </a>
+                    <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a la Lista
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Información principal del libro -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Información General
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Título</h6>
+                        <p class="h5">{{ libro.titulo }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Autor</h6>
+                        <p class="h5">{{ libro.autor }}</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Género</h6>
+                        <span class="badge bg-info fs-6">{{ libro.get_genero_display }}</span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-primary">Año de Publicación</h6>
+                        <p class="fs-5">{{ libro.año_publicacion }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información del sistema -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>Información del Sistema
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Fecha de Ingreso:</strong> {{ libro.fecha_ingreso|date:"d/m/Y" }}</p>
+                        <p><strong>Última Modificación:</strong> {{ libro.fecha_modificacion|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>ID del Libro:</strong> <code>{{ libro.pk }}</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Panel lateral con acciones -->
+    <div class="col-md-4">
+        <!-- Acciones rápidas -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'libros:editar' libro.pk %}" class="btn btn-warning">
+                        <i class="fas fa-edit me-2"></i>Editar Libro
+                    </a>
+                    <a href="{% url 'libros:eliminar' libro.pk %}" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Eliminar Libro
+                    </a>
+                    <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>Ver Todos los Libros
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información adicional -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Información del Libro
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-book fa-2x text-primary"></i>
+                        <p class="mb-0 mt-2"><strong>Libro #{{ libro.pk }}</strong></p>
+                    </div>
+                    
+                    <div class="row text-center">
+                        <div class="col-12">
+                            <h6 class="text-muted">Género</h6>
+                            <p class="mb-0">{{ libro.get_genero_display }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navegación entre libros -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-compass me-2"></i>Navegación
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a la Lista
+                    </a>
+                    <div>
+                        <a href="{% url 'libros:crear' %}" class="btn btn-primary me-2">
+                            <i class="fas fa-plus me-2"></i>Nuevo Libro
+                        </a>
+                        <a href="{% url 'libros:editar' libro.pk %}" class="btn btn-warning">
+                            <i class="fas fa-edit me-2"></i>Editar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

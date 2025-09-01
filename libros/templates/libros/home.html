@@ -1,0 +1,107 @@
+{% extends 'libros/base.html' %}
+
+{% block title %}Inicio - Gestor de Libros{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header text-center">
+                <h1 class="mb-0">
+                    <i class="fas fa-book-open me-3"></i>
+                    Bienvenido al Sistema de Gestión de Libros
+                </h1>
+                <p class="mb-0 mt-2">Administra tu biblioteca de manera eficiente y organizada</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones rápidas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <a href="{% url 'libros:crear' %}" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-plus me-2"></i>Agregar Nuevo Libro
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="{% url 'libros:lista' %}" class="btn btn-secondary btn-lg w-100">
+                            <i class="fas fa-list me-2"></i>Ver Todos los Libros
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Libros recientes -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>Libros Agregados Recientemente
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if libros_recientes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Título</th>
+                                    <th>Autor</th>
+                                    <th>Género</th>
+                                    <th>Fecha de Ingreso</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for libro in libros_recientes %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ libro.titulo }}</strong>
+                                    </td>
+                                    <td>{{ libro.autor }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ libro.get_genero_display }}</span>
+                                    </td>
+                                    <td>{{ libro.fecha_ingreso|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <a href="{% url 'libros:detalle' libro.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'libros:editar' libro.pk %}" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No hay libros registrados aún</h5>
+                        <p class="text-muted">Comienza agregando tu primer libro al sistema</p>
+                        <a href="{% url 'libros:crear' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Agregar Primer Libro
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

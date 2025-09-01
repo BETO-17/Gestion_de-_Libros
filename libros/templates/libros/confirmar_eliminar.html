@@ -1,0 +1,152 @@
+{% extends 'libros/base.html' %}
+
+{% block title %}Eliminar Libro - Gestor de Libros{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0 text-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-trash me-2"></i>Eliminar Libro
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-book fa-4x text-danger mb-3"></i>
+                    </div>
+                    <div class="col-md-8">
+                        <h5>¿Estás seguro de que quieres eliminar este libro?</h5>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ object.titulo }}</h6>
+                                <p class="card-text">
+                                    <strong>Autor:</strong> {{ object.autor }}<br>
+                                    <strong>ISBN:</strong> <code>{{ object.isbn }}</code><br>
+                                    <strong>Género:</strong> {{ object.get_genero_display }}<br>
+                                    <strong>Estado:</strong> 
+                                    <span class="badge bg-{% if object.estado == 'disponible' %}success{% elif object.estado == 'prestado' %}warning{% elif object.estado == 'reservado' %}info{% else %}danger{% endif %}">
+                                        {{ object.get_estado_display }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Información:</strong> Este libro fue agregado el {{ object.fecha_ingreso|date:"d/m/Y" }} 
+                    y ha sido modificado por última vez el {{ object.fecha_modificacion|date:"d/m/Y H:i" }}.
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'libros:detalle' object.pk %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Sí, Eliminar Libro
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Información adicional -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>¿Por qué eliminar un libro?
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Casos comunes:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Libro duplicado</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Información incorrecta</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Libro perdido o dañado</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Error en el registro</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Alternativas:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-edit text-info me-2"></i>Editar la información</li>
+                            <li><i class="fas fa-exchange-alt text-info me-2"></i>Cambiar el estado</li>
+                            <li><i class="fas fa-archive text-info me-2"></i>Marcar como archivado</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navegación -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-compass me-2"></i>Navegación
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'libros:lista' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>Ver Todos los Libros
+                    </a>
+                    <div>
+                        <a href="{% url 'libros:editar' object.pk %}" class="btn btn-warning me-2">
+                            <i class="fas fa-edit me-2"></i>Editar en su lugar
+                        </a>
+                        <a href="{% url 'libros:crear' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Crear Nuevo Libro
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Confirmar antes de enviar el formulario
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const confirmacion = confirm('¿Estás completamente seguro de que quieres eliminar este libro? Esta acción no se puede deshacer.');
+        if (!confirmacion) {
+            e.preventDefault();
+        }
+    });
+    
+    // Prevenir envío accidental con Enter
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}
